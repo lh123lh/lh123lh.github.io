@@ -1,5 +1,7 @@
 ---
 title: Buildroot 编译失败解决方案
+tags: 
+	-嵌入式开发
 ---
 在嵌入式linux开发过程中交叉编译buildroot时会出现很多错误导致编译无法继续进行,在此总结("抄袭",:stuck_out_tongue_winking_eye:)了一些错误解决方案以备后用.
 

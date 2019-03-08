@@ -65,7 +65,7 @@ top: true
 
 # Miscellaneous
 baidu_analytics: 9e9f2b19b360797df41288e353196ae8
-google_analytics: ''
+google_analytics: UA-135879986-1
 favicon: /assets/favicon.ico
 
 #你的头像url

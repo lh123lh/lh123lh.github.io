@@ -8,7 +8,7 @@ subtitle:
 description:
 keywords:
 author: Heng
-language: zh-Hans
+language:
 timezone:
 
 # URL
@@ -110,14 +110,7 @@ markdown:
     collisionSuffix: 'v'
     permalink: true
     permalinkClass: header-anchor
-    # permalinkSymbol: 
-
-# Post wordcount display settings
-symbols_count_time:
-symbols: true
-time: true
-total_symbols: true
-total_time: true
+    permalinkSymbol: ¶
 
 # Extensions
 ## Plugins: https://hexo.io/plugins/

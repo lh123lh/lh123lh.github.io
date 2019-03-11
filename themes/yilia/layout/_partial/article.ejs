@@ -11,7 +11,7 @@
           <%- partial('post/word') %>
           <% } %>
         <!-- 添加完成 -->
-        
+
         <% } %>
       </header>
     <% } %>
@@ -25,6 +25,7 @@
         <%- post.content %>
       <% } %>
 
+      <!-- 开始添加版权信息-->
       <%
         var sUrl = url.replace(/index\.html$/, '');
         sUrl = /^(http:|https:)\/\//.test(sUrl) ? sUrl : 'https:' + sUrl;
@@ -54,6 +55,7 @@
       <% } else {%>
         <div class="declare" hidden="hidden"></div>
       <% } %>
+      <!-- 添加完成 -->
 
       <% if ((theme.reward_type === 2 || (theme.reward_type === 1 && post.reward)) && !index){ %>
         <div class="page-reward">
@@ -117,13 +119,14 @@
 
 
 <% if (!index && post.comments){ %>
+
   <% if (theme.livere){ %>
     <%- partial('post/livere', {
           key: post.slug,
           title: post.title,
           url: config.url+url_for(post.path)
       }) %>
-    <% } %>
+  <% } %>
 
   <% if (theme.duoshuo){ %>
   <%- partial('post/duoshuo', {

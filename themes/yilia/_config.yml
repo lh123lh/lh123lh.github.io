@@ -140,6 +140,6 @@ friends:
 declare_type: 1
 licensee_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
 licensee_name: '知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议'
-licensee_img: https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png
+# licensee_img: https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png
 
 aboutme: 很惭愧<br><br>只做了一点微小的工作<br>谢谢大家

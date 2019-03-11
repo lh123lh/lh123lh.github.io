@@ -1,6 +1,7 @@
 ---
 title: ZYNQ移植ubuntu16.04
 date: 2019-03-11 09:30:04
+declare: true
 tags: [ZYNQ,ubuntu 移植,嵌入式开发]
 ---
 由于工作原因，需要在xilinx zynq7000系列的SOC上移植ubuntu 16.04，在此，记录移植过程。

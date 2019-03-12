@@ -120,7 +120,7 @@
 
 <% if (!index && post.comments){ %>
 
-  <% if (theme.livere){ %>
+  <% if (!index && theme.livere && post.comments){ %>
     <%- partial('post/livere', {
           key: post.slug,
           title: post.title,

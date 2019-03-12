@@ -117,6 +117,9 @@ markdown:
 ## Themes: https://hexo.io/themes/
 theme: yilia
 
+#RSS订阅
+plugins: hexo-generater-feed
+
 # 看板动画配置
 live2d:
   enable: false

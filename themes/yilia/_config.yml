@@ -10,7 +10,7 @@ menu:
 subnav:
   github: "https://github.com/lh123lh"
   weibo: "#"
-  rss: "#"
+  rss: /atom.xml
   zhihu: "#"
   #qq: "#"
   #weixin: "#"
@@ -24,8 +24,6 @@ subnav:
   #google: "#"
   #twitter: "#"
   #linkedin: "#"
-
-rss: /atom.xml
 
 # 是否需要修改 root 路径
 # 如果您的网站存放在子目录中，例如 http://yoursite.com/blog，
@@ -131,7 +129,7 @@ slider:
 #  friends: false
 smart_menu:
   innerArchive: '所有文章'
-  friends: '友链'
+  # friends: '友链'
   aboutme: '关于我'
 
 # 是否开启字数统计

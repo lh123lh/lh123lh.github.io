@@ -120,13 +120,13 @@
 
 <% if (!index && post.comments){ %>
 
-  <% if (!index && theme.livere && post.comments){ %>
+  <% if (!index && theme.livere.enable && post.comments){ %>
     <%- partial('post/livere', {
-          key: post.slug,
-          title: post.title,
-          url: config.url+url_for(post.path)
+        key: post.slug,
+        title: post.title,
+        url: config.url+url_for(post.path)
       }) %>
-  <% } %>
+    <% } %>
 
   <% if (theme.duoshuo){ %>
   <%- partial('post/duoshuo', {

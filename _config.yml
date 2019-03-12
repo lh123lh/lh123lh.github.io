@@ -135,6 +135,10 @@ live2d:
     position: left
     width: 150
     height: 300
+    # 水平位置
+    hOffset: 0
+    # 垂直位置
+    vOffset: -150
   mobile:
     show: false
 

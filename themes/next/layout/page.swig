@@ -35,6 +35,19 @@
             </div>
             <div class="tag-cloud-tags">
               {{ tagcloud({min_font: 12, max_font: 30, amount: 300, color: true, start_color: '#ccc', end_color: '#111'}) }}
+
+              {% if site.tags.length > 1 %}
+                <script type="text/javascript" charset="utf-8" src="/js/tagcloud.js"></script>
+                <script type="text/javascript" charset="utf-8" src="/js/tagcanvas.js"></script>
+                <div class="widget-wrap">
+                    <h3 class="widget-title">Tag Cloud</h3>
+                    <div id="myCanvasContainer" class="widget tagcloud">
+                        <canvas width="250" height="250" id="resCanvas" style="width=100%">
+                            {{ list_tags() }}
+                        </canvas>
+                    </div>
+                </div>
+              {% endif %}
             </div>
           </div>
         {% elif page.type === 'categories' %}

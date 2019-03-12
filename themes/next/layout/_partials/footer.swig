@@ -1,4 +1,4 @@
-<div class="copyright">{#
+<div style="background-color: white" class="copyright">{#
 #}{% set current = date(Date.now(), "YYYY") %}{#
 #}&copy; {% if theme.footer.since and theme.footer.since != current %}{{ theme.footer.since }} &mdash; {% endif %}{#
 #}<span itemprop="copyrightYear">{{ current }}</span>
@@ -41,7 +41,7 @@
 #}</div>
 -->
 
-  <div id="days"></div>
+  <div style="background-color: white" id="days"></div>
   <script>
   function show_date_time(){
       window.setTimeout("show_date_time()", 1000);

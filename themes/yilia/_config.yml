@@ -111,6 +111,9 @@ style:
   # 右滑板块背景
   slider: 'linear-gradient(200deg,#a0cfe4,#e8c37e)'
 
+#头像是否旋转(如果不要旋转取false)
+avatarrotation: true
+
 # slider的设置
 slider:
   # 是否默认展开tags板块

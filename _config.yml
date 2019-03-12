@@ -115,7 +115,7 @@ markdown:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: yilia
+theme: next
 
 #RSS订阅
 plugins: hexo-generater-feed
@@ -137,6 +137,13 @@ live2d:
     height: 300
   mobile:
     show: false
+
+# 站内搜索功能
+search:
+  path: search.xml
+  field: post
+  format: html
+  limit: 10000
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html

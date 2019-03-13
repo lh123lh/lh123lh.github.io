@@ -5,7 +5,7 @@
   {% if theme.busuanzi_count.site_uv %}
     <span class="site-uv">
       {{ theme.busuanzi_count.site_uv_header }}
-      访客数<span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
       {{ theme.busuanzi_count.site_uv_footer }}
     </span>
   {% endif %}
@@ -13,7 +13,7 @@
   {% if theme.busuanzi_count.site_pv %}
     <span class="site-pv">
       {{ theme.busuanzi_count.site_pv_header }}
-      访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>次
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
       {{ theme.busuanzi_count.site_pv_footer }}
     </span>
   {% endif %}

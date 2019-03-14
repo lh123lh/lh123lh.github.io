@@ -29,7 +29,7 @@ i18n_dir: :lang
 skip_render:
   - webpage/**
   - robots.txt
-  - baidu_verify_ZledL9plj5.html
+  - baidu_verify_4zEU8sNU6e.html
 
 # Writing
 new_post_name: :title.md # File name of new posts

@@ -161,6 +161,7 @@ baidusitemap:
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: git@git.dev.tencent.com:lh123lh/lh123lh.coding.me.git
-        # github: git@github.com:lh123lh/lh123lh.github.io.git  #这里的网址填你自己的
+  repo:
+        github: git@github.com:lh123lh/lh123lh.github.io.git  #这里的网址填你自己的
+        coding: https://git.dev.tencent.com/lh123lh/lh123lh.coding.me.git
   branch: master

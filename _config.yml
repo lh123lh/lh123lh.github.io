@@ -163,5 +163,5 @@ deploy:
   type: git
   repo: 
         # github: git@github.com:lh123lh/lh123lh.github.io.git  #这里的网址填你自己的
-        coding: git@git.dev.tencent.com/lh123lh/lh123lh.coding.me.git
+        coding: https://lh123lh@git.dev.tencent.com/lh123lh/lh123lh.coding.me.git
   branch: master

@@ -12,3 +12,6 @@ Disallow: /fancybox/
 
 Sitemap: http://lh123lh.github.io/sitemap.xml
 Sitemap: https://lh123lh.github.io/sitemap.xml
+
+Sitemap: http://lh123lh.coding.me/sitemap.xml
+Sitemap: https://lh123lh.coding.me/sitemap.xml

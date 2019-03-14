@@ -1,0 +1,77 @@
+language: node_js
+python: 
+  - "3.6"
+node_js: stable
+
+notifications:
+  email:
+    recipients:
+      - 184591403@qq.com
+    on_success: change # default: change
+    on_failure: always # default: always
+
+install:
+  - npm install
+  - sudo apt-get install python3 -y
+  - sudo apt-get install python3-pip -y
+  - sudo pip3 install -r requirements.txt
+
+script:
+  - hexo clean
+# - python3 migrate.py 
+
+after_script:
+  # Build Master Repository(Coding Pages) 
+  - rm _config.yml
+  - mv config-master.yml _config.yml
+  - hexo recommend
+  - hexo generate
+  - python3 syncvisitor.py
+  - python3 readme.py https://blog.yuanpei.me/
+  # - cp README.md ./public/README.md
+  - cp albums.json ./public/albums.json
+  - git config user.name "lh123lh"
+  - git config user.email "184591403@qq.com"
+  - cd ./public
+  - git init
+  - git remote add origin master https://github.com/lh123lh/lh123lh.github.io 
+  - git add .
+  - git commit -m "Update Blog By Travis-CI With Build $TRAVIS_BUILD_NUMBER For Coding Pages"
+  - git push --force --quiet "https://lh123lh:${CO_TOKEN}@${CO_REF}" master:master
+  # Prepare Rebuild
+  - cd ..
+  - rm -rf ./public
+  - hexo clean
+  # Build Salver Repository(Github Pages)
+  # - rm _config.yml
+  # - mv config-salve.yml _config.yml
+  # - hexo recommend
+  # - hexo generate
+  # - python3 syncvisitor.py
+  # - python3 readme.py https://qinyuanpei.github.io/
+  # - cp README.md ./public/README.md
+  # - cp albums.json ./public/albums.json
+  # - git config user.name "qinyuanpei"
+  # - git config user.email "qinyuanpei@163.com"
+  # - cd ./public
+  # - git init 
+  # - git remote add origin master https://github.com/qinyuanpei/qinyuanpe.github.io
+  # - git add .
+  # - git commit -m "Update Blog By Travis-CI With Build $TRAVIS_BUILD_NUMBER For Github Pages"
+  # - git push --force --quiet "https://${CI_TOKEN}@${GH_REF}" master:master
+
+
+addons:
+  apt:
+    update: true
+
+branches:
+  only:
+    - master
+
+env:
+ global:
+   # Github Pages
+   - GH_REF: github.com/lh123lh/lh123lh.github.io
+   # Coding Pages
+   - CO_REF: git.dev.tencent.com/lh123lh/lh123lh.coding.me.git

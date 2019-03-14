@@ -38,7 +38,7 @@ $ ./config no-asm -shared --prefix=$(pwd)/install
 ```
 
 上述步骤只是生成了Makefile,还没有设置交叉编译工具链,需要手动设置.
-用编辑器打开Magefile,搜索"-m64",总共找到两处,删除之.搜索"CROSS_COMPILE=",改为"CROSS_COMPILE=arm-linux-gnueabihf-".
+用编辑器打开Makefile,搜索"-m64",总共找到两处,删除之.搜索"CROSS_COMPILE=",改为"CROSS_COMPILE=arm-linux-gnueabihf-".
 接着进行编译:
 ```bash
 $ make -j4

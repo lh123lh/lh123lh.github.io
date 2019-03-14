@@ -67,7 +67,7 @@ addons:
 
 branches:
   only:
-    - master
+    - hexo_source
 
 env:
  global:

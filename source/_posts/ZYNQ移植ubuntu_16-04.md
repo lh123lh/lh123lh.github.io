@@ -178,7 +178,14 @@ $ passwd root
 
 添加用户:
 ```bash
-adduser ubuntu
+$ adduser ubuntu
+```
+
+给新添加的用户分配权限:
+```bash 
+$ vi /etc/sudoers
+在"root ALL=(ALL) ALL"这一行下面添加:
+ubuntu ALL=(ALL) ALL
 ```
 
 <br/>

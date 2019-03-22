@@ -20,7 +20,7 @@ $ mkdir -p tmp
 ```
 
 下载根文件系统,这里我用的是官方的下载地址,如果下载速度很慢,也可以从[清华大学开源软件镜像站](https://mirrors.tuna.tsinghua.edu.cn/)下载对应版本.由于我们的开发板是arm平台,所以下载 [ubuntu-base-16.04-core-armhf.tar.gz](http://cdimage.ubuntu.com/ubuntu-base/releases/16.04/release/ubuntu-base-16.04-core-armhf.tar.gz).
-***注意:下载完成后一定要用root权限解压,否则最终生成的版本在使用过程中会出现各种问题!!!***
+***注意:下载完成后一定要用root权限解压,且务必解压到linux的分区,否则最终生成的版本在使用过程中会出现各种问题!!!***
 
 ```bash
 $ sudo su

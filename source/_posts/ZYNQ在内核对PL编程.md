@@ -38,7 +38,7 @@ password:
     }
 
 在SDK中打开shell,执行以下命令即可将bitstream转换为bin:
-```bash
+```
 $ bootgen -image fsbl.bif -w -process_bitstream bin
 ```
 完成后即可在bitstream所在目录找到对应的bin文件
@@ -55,7 +55,7 @@ $ bootgen -image fsbl.bif -w -process_bitstream bin
 ## 3.对PL编程
 
 ### 3.1 使用sysfs接口
-```bash
+```
 $ mkdir -p /lib/firmware/
 $ cp design_1_wrapper.bit.bin /lib/firmware
 $ echo 8 > /sys/class/fpga_manager/fpga0/flags
@@ -64,6 +64,6 @@ $ echo design_1_wrapper.bit.bin > /sys/class/fpga_manager/fpga0/firmware
 
 ### 3.2 使用fpgautil工具
 [fpgautil](https://xilinx-wiki.atlassian.net/wiki/download/attachments/18841847/fpgautil.c?version=2&modificationDate=1549947129137&cacheVersion=1&api=v2)是xilinx官方为MPSOC提供的工具,但是在zynq7000上也可以使用.
-```bash
+```
 $ fpgautil -b ./design_1_wrapper.bit.bin
 ```

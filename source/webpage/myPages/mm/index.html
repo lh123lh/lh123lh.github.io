@@ -3,7 +3,7 @@
 
 <head>
 
-    <script language="JavaScript">
+    <!-- <script language="JavaScript">
         function password() {
             var testV = 1;
             var pass1 = prompt('请输入密码(密码是245):', '');
@@ -22,10 +22,10 @@
             return " ";
         }
         document.write(password());
-    </script>
+    </script> -->
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>1996 - DengSir</title>
+    <title>致小仙女</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <!--<meta itemprop="image" content="./images/fenxiang.png" />-->
@@ -126,7 +126,7 @@
 <body>
     <!--更改为你女朋友的头像-->
     <div class="cs">
-        <img src="http://wx1.sinaimg.cn/large/006gFOhdly1fr0hdrzlolj30b40b4dg7.jpg" id="logo">
+        <img src="img/miaomiao.jpg" id="logo">
     </div>
     <canvas class="canvas" width="1820" height="905"></canvas>
     <p class="text" style="color: #ed3073;">
@@ -137,8 +137,8 @@
     <script language="javascript">
         function show_date_time() {
             window.setTimeout("show_date_time()", 1000);
-            MeetDay = new Data("2/20/2019 00:00:00")
-            BirthDay = new Date("4/5/2019 15:43:00");//这个日期是可以修改的
+            // MeetDay = new Data("2/20/2019 00:00:00");
+            BirthDay = new Date("5/4/2019 15:43:00");//这个日期是可以修改的
             today = new Date();
             timeold = (today.getTime() - BirthDay.getTime());
             sectimeold = timeold / 1000
@@ -156,19 +156,19 @@
 
         show_date_time();
     </script>
+
     <script>
         var S = {
             init: function () {
                 S.Drawing.init('.canvas');
                 document.body.classList.add('body--ready');
                 //想说的话
-                S.UI.simulate("娜娜|I'm|ZLOE|Nice|to|Meet|You|#countdown 3|#time");
+                S.UI.simulate("小宝贝|Nice|to|Meet|You|I|Love|You|#countdown 3|#time");
                 S.Drawing.loop(function () {
                     S.Shape.render();
                 });
             }
         };
-
 
         S.Drawing = (function () {
             var canvas,
@@ -695,12 +695,11 @@
         }());
         S.init();
     </script>
-    //音乐可改
-    <audio autoplay="autoplay" loop="loop">
-        <source
-            src="http://m10.music.126.net/20180509183512/5ae461e9a42675d782840bf139b05c60/ymusic/e492/ea7a/6a27/8799d19e52d9bbe3ae15febb03d7efdb.mp3"
-            type="audio/mpeg">
-    </audio>
+    <div style="text-align:center">
+        <audio autoplay="" loop="">
+            <source src="audio/Playing Love.mp3">
+        </audio>
+    </div>
 </body>
 
 </html>

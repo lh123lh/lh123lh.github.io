@@ -153,12 +153,30 @@ $ apt-get install xinit //startx
 $ apt-get install xdm //环境管理器
 $ apt-get install xfce4 //桌面环境
 ```
-安装包管理器 网卡管理模块 中文支持
+
+安装包管理器 网卡管理模块
 ```bash
 $ apt-get install synaptic
 $ apt-get install network-manager
-$ apt-get install language-support-zh
 ```
+
+NetworkManager默认eth0为unmanaged状态,需要手动修改配置文件,否则开机后eth0无法自动dhcp
+```bash
+$ cd /usr/lib/NerworkManager/conf.d/
+$ rm 10-globally-managed-devices.conf
+$ touch 10-globally-managed-devices.conf
+```
+
+添加中文支持
+```bash
+$ apt-get install language-pack-zh-hant language-pack-zh-hans
+$ locale-gen en_US.UTF-8
+然后
+$ dpkg-reconfigure locales
+选zh UTF-8
+```
+
+
 图形界面的开启与关闭
 ```bash
 取消自启

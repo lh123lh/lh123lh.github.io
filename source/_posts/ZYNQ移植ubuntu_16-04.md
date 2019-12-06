@@ -137,13 +137,7 @@ $ apt-get update
 
 由于ubuntu core只包含最基础的软件,所以需要自行安装常用的软件
 ```bash
-$ apt-get install python3
-$ apt-get install wireless-tools
-$ apt-get install vim
-$ apt-get isntall sudo
-$ apt-get install net-tools
-$ apt-get install iputils-ping
-$ apt-get install iproute2
+$ apt-get install python3 wireless-tools vim sudo net-tools iputils-ping iproute2
 $ apt-get -y install udev
 ```
 
@@ -153,11 +147,15 @@ $ apt-get install xinit //startx
 $ apt-get install xdm //环境管理器
 $ apt-get install xfce4 //桌面环境
 ```
+恢复Xfce4的默认配置
+```bash
+$ rm ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+```
 
 安装包管理器 网卡管理模块
 ```bash
 $ apt-get install synaptic
-$ apt-get install network-manager
+$ apt-get install network-manager network-manager-gnome
 ```
 
 NetworkManager默认eth0为unmanaged状态,需要手动修改配置文件,否则开机后eth0无法自动dhcp
@@ -170,10 +168,21 @@ $ touch 10-globally-managed-devices.conf
 添加中文支持
 ```bash
 $ apt-get install language-pack-zh-hant language-pack-zh-hans
-$ locale-gen en_US.UTF-8
+$ apt install -y --force-yes --no-install-recommends fonts-wqy-microhei
+$ apt install -y --force-yes --no-install-recommends ttf-wqy-zenhei
 然后
 $ dpkg-reconfigure locales
 选zh UTF-8
+$ locale-gen en_US.UTF-8
+```
+
+安装Chrome
+```bash
+$ apt-get install chromium-browser chromium-browser-l10n
+```
+遇到chrome unlock keyring
+```bash
+$ apt install seahorse
 ```
 
 

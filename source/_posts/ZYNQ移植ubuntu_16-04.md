@@ -179,10 +179,9 @@ $ locale-gen en_US.UTF-8
 安装Chrome
 ```bash
 $ apt-get install chromium-browser chromium-browser-l10n
-```
 遇到chrome unlock keyring
-```bash
 $ apt install seahorse
+终端输入 seahorse 然后点击Default lock,设置旧密码后,新密码不输入直接确认,可以解决此问题
 ```
 
 

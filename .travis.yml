@@ -32,4 +32,4 @@ env:
    # Github Pages
    - GH_REF: github.com/lh123lh/lh123lh.github.io
    # Coding Pages
-   - CO_REF: e.coding.net/lh123lh/lh123lh.coding.me.git
+   - CO_REF: lh123lh.coding.net/p/lh123lh.coding.me

@@ -21,7 +21,8 @@ after_script:
   # Github Pages
   # - git push --force --quiet "https://${CI_TOKEN}@${GH_REF}" master:master 
   # Coding Pages
-  - git push --force --quiet https://${CO_TOKEN}@${CO_REF} master:master
+  # - git push --force --quiet https://${CO_TOKEN}@${CO_REF} master:master
+  - git push --force --quiet https://ff143f59c830836b492830bdb7699cbbdc5e1299@e.coding.net/lh123lh/lh123lh.coding.me.git/ master:master
 
 branches:
   only:

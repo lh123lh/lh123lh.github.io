@@ -1,12 +1,12 @@
 ---
-title: ZYNQ移植ubuntu16.04
+title: ZYNQ移植ubuntu18.04
 date: 2019-03-11 09:30:04
 declare: true
 tags: [ZYNQ,ubuntu 移植,嵌入式开发]
 ---
-由于工作原因，需要在xilinx zynq7000系列的SOC上移植ubuntu 16.04，在此，记录移植过程。
+由于工作原因，需要在xilinx zynq7000系列的SOC上移植ubuntu 18.04，在此，记录移植过程。
 
-操作系统: Ubuntu 16.04 LTS
+操作系统: Ubuntu 18.04 LTS
 开发板  : MYIR Z-turn Board
 
 <!-- more -->
@@ -19,12 +19,12 @@ $ cd ~/ubuntu_rootfs
 $ mkdir -p tmp
 ```
 
-下载根文件系统,这里我用的是官方的下载地址,如果下载速度很慢,也可以从[清华大学开源软件镜像站](https://mirrors.tuna.tsinghua.edu.cn/)下载对应版本.由于我们的开发板是arm平台,所以下载 [ubuntu-base-16.04-core-armhf.tar.gz](http://cdimage.ubuntu.com/ubuntu-base/releases/16.04/release/ubuntu-base-16.04-core-armhf.tar.gz).
+下载根文件系统,这里我用的是官方的下载地址,如果下载速度很慢,也可以从[清华大学开源软件镜像站](https://mirrors.tuna.tsinghua.edu.cn/)下载对应版本.由于我们的开发板是arm平台,所以下载 [ubuntu-base-18.04-core-armhf.tar.gz](https://mirrors.tuna.tsinghua.edu.cn/ubuntu-cdimage/ubuntu-base/releases/18.04.4/release/ubuntu-base-18.04-base-armhf.tar.gz).
 ***注意:下载完成后一定要用root权限解压,且务必解压到linux的分区,否则最终生成的版本在使用过程中会出现各种问题!!!***
 
 ```bash
 $ sudo su
-$ tar -xvf ubuntu-base-16.04-core-armhf.tar.gz -C ~/ubuntu_rootfs/tmp
+$ tar -xvf ubuntu-base-18.04-core-armhf.tar.gz -C ~/ubuntu_rootfs/tmp
 ```
 解压后得到:
 ```bash
@@ -58,7 +58,7 @@ $ sudo gedit etc/apt/source.list
 
 我这里用的是清华大学的软件源
 ```bash
-# deb cdrom:[Ubuntu 16.04 LTS _Xenial Xerus_ - Release amd64 (20160420.1)]/ xenial main restricted
+# deb cdrom:[Ubuntu 18.04 LTS _Xenial Xerus_ - Release amd64 (20160420.1)]/ xenial main restricted
 deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial main restricted
 deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial-updates main restricted
 deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial universe

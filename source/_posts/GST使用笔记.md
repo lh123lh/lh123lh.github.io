@@ -111,5 +111,5 @@ c=IN IP4 192.168.30.218
 **使用以下命令将视频流保存到mp4文件中:**
 
 ```bash
-gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1024,height=768,framerate=15/1 ! videoconvert ! x264enc tune=zerolatency ! matroskamux ! filesink location = output1.mp4
+gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=15/1 ! videoconvert ! x264enc threads=4 sliced-threads=TRUE tune=zerolatency ! matroskamux ! filesink location = output1.mp4
 ```

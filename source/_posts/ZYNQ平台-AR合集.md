@@ -29,10 +29,10 @@ CPU Power Management -->
 **用PetaLinux 2018.3版本编译的启动文件在启动时会报错:"MMC:   sdhci_transfer_data: Error detected in status(0x208000)!",之后系统无法正常启动**
 
 ### 解决方案
-```
 这个问题实际上官方之前已经发现，并且在petalinux2017.4之后的版本进行了修复[AR#69780](https://www.xilinx.com/support/answers/69780.html?tdsourcetag=s_pcqq_aiomsg)，但是修复并没有完全解决问题。在版本修复之前，问题的来源是在petalinux-config设置主SD为1后，并没有能够成功修改uboot的启动指令，故给出了AR69780中的解决方案，但是解决方案并不完美。
 
 只需在project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h 文件的末尾加入下面的代码:
+```
 /*   fix codes  */
 #ifdef CONFIG_BOOTCOMMAND
 #undef CONFIG_BOOTCOMMAND

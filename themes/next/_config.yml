@@ -60,12 +60,12 @@ footer:
     # Icon name in Font Awesome. See: https://fontawesome.com/icons
     name: fa fa-heart
     # If you want to animate the icon, set it to true.
-    animated: false
+    animated: true
     # Change the color of icon, using Hex Code.
-    color: "#ff0000"
+    color: "#808080"
 
   # If not defined, `author` from Hexo `_config.yml` will be used.
-  copyright:
+  copyright: lh123lh
 
   # Powered by Hexo & NexT
   powered: true
@@ -88,8 +88,8 @@ footer:
 # CC licenses are available in 39 languages, you can find the specific and correct abbreviation you need on https://creativecommons.org
 creative_commons:
   license: by-nc-sa
-  sidebar: false
-  post: false
+  sidebar: true
+  post: true
   language:
 
 
@@ -260,6 +260,15 @@ symbols_count_time:
   separated_meta: true
   item_text_post: true
   item_text_total: true
+  awl: 2 #平均每个字符的长度
+  wpm: 300 #words per minute
+
+post_wordcount:
+  item_text: true
+  wordcount: true
+  min2read: true
+  totalcount: true
+  separated_meta: true
 
 # Use icon instead of the symbol # to indicate the tag at the bottom of the post
 tag_icon: true

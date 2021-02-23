@@ -40,9 +40,23 @@
     {%- endif %}
     <span title="{{ __('symbols_count_time.time_total') }}">{{ symbolsTimeTotal(site, config.symbols_count_time.awl, config.symbols_count_time.wpm, __('symbols_count_time.time_minutes')) }}</span>
   {%- endif %}
+
+  {% if theme.symbols_count_time.item_text_total %}
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    {% if theme.post_wordcount.item_text %}
+      <span class="post-meta-item-text">{{ __('post.totalcount') }}&#58;</span>
+    {% endif %}
+    <span title="{{ __('post.totalcount') }}">{#
+    #}{{ totalcount(site, '0,0.0a') }}{#
+  #}</span>
+  {% endif %}
 </div>
 
 {%- if theme.footer.powered %}
+<!--
   <div class="powered-by">
     {%- set next_site = 'https://theme-next.org' %}
     {%- if theme.scheme !== 'Gemini' %}
@@ -50,6 +64,34 @@
     {%- endif %}
     {{- __('footer.powered', next_url('https://hexo.io', 'Hexo', {class: 'theme-link'}) + ' & ' + next_url(next_site, 'NexT.' + theme.scheme, {class: 'theme-link'})) }}
   </div>
+  -->
+
+  <div id="days"></div>
+  <script>
+  function show_date_time(){
+      window.setTimeout("show_date_time()", 1000);
+      BirthDay=new Date("03/05/2019 10:00:00");//修改为自己的blog建站时间
+      today=new Date();
+      timeold=(today.getTime()-BirthDay.getTime());
+      sectimeold=timeold/1000
+      secondsold=Math.floor(sectimeold);
+      msPerDay=24*60*60*1000
+      e_daysold=timeold/msPerDay
+      daysold=Math.floor(e_daysold);
+      e_hrsold=(e_daysold-daysold)*24;
+      hrsold=setzero(Math.floor(e_hrsold));
+      e_minsold=(e_hrsold-hrsold)*60;
+      minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+      seconds=setzero(Math.floor((e_minsold-minsold)*60));
+      document.getElementById('days').innerHTML="本站已安全运行"+daysold+"天"+hrsold+"小时"+minsold+"分"+seconds+"秒";
+  }
+  function setzero(i){
+      if (i<10)
+      {i="0" + i};
+      return i;
+  }
+  show_date_time();
+  </script>
 {%- endif %}
 
 {%- if theme.add_this_id %}

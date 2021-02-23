@@ -30,6 +30,10 @@ post:
   sticky: 置顶
   views: 阅读次数
   related_posts: 相关文章
+  visitors: 阅读次数
+  wordcount: 字数统计
+  min2read: 阅读时长
+  totalcount: 全站总字数
   copyright:
     author: 本文作者
     link: 本文链接

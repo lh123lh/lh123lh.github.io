@@ -5,9 +5,9 @@ cache:
   directories:
   - node_modules
 before_install:
+- npm install -g npm
 - npm install hexo-cli -g
 install:
-- npm install -g npm
 - npm install
 script:
 - hexo clean

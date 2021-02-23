@@ -7,7 +7,7 @@ cache:
 before_install:
 - npm install hexo-cli -g
 install:
-- npm install
+- cnpm install
 script:
 - hexo clean
 - hexo generate

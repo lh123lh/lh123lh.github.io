@@ -1,7 +1,6 @@
 ---
 title: ZYNQ 7000 CAN调试记录
 copyright: true
-permalink: 1
 top: 0
 date: 2019-03-26 08:50:36
 tags:

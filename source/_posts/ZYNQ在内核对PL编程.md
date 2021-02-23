@@ -1,7 +1,6 @@
 ---
 title: ZYNQ在内核对PL编程
 copyright: true
-permalink: 1
 top: 0
 date: 2019-04-08 16:53:51
 tags:

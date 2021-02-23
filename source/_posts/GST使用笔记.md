@@ -1,7 +1,6 @@
 ---
 title: GST使用笔记
 copyright: true
-permalink: 1
 top: 0
 date: 2020-07-28 13:45:01
 tags: [ZYNQ, Video, 嵌入式开发]

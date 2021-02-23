@@ -1,7 +1,6 @@
 ---
 title: ZYNQ平台_AR合集
 copyright: true
-permalink: 1
 top: 0
 date: 2020-08-13 13:59:09
 tags: [ZYNQ, 嵌入式开发]

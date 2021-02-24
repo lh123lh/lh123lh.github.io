@@ -121,7 +121,7 @@ markdown:
 theme: next
 
 #RSS订阅
-plugins: hexo-generater-feed
+plugins: hexo-generate-feed
 
 # 看板动画配置
 live2d:

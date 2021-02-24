@@ -40,19 +40,6 @@
     {%- endif %}
     <span title="{{ __('symbols_count_time.time_total') }}">{{ symbolsTimeTotal(site, config.symbols_count_time.awl, config.symbols_count_time.wpm, __('symbols_count_time.time_minutes')) }}</span>
   {%- endif %}
-
-  {% if theme.symbols_count_time.item_text_total %}
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item-icon">
-      <i class="fa fa-area-chart"></i>
-    </span>
-    {% if theme.post_wordcount.item_text %}
-      <span class="post-meta-item-text">{{ __('post.totalcount') }}&#58;</span>
-    {% endif %}
-    <span title="{{ __('post.totalcount') }}">{#
-    #}{{ totalcount(site, '0,0.0a') }}{#
-  #}</span>
-  {% endif %}
 </div>
 
 {%- if theme.footer.powered %}

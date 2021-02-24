@@ -166,3 +166,15 @@ deploy:
         github: git@github.com:lh123lh/lh123lh.github.io.git  #这里的网址填你自己的
         coding: https://git.dev.tencent.com/lh123lh/lh123lh.coding.me.git
   branch: master
+
+symbols_count_time:
+  #文章内是否显示
+  symbols: true
+  time: false
+  # 网页底部是否显示
+  total_symbols: true
+  total_time: false
+  exclude_codeblock: false
+  awl: 4
+  wpm: 275
+  suffix: 'mins.'

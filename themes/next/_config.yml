@@ -25,7 +25,7 @@ custom_file_path:
   #head: source/_data/head.swig
   #header: source/_data/header.swig
   #sidebar: source/_data/sidebar.swig
-  #postMeta: source/_data/post-meta.swig
+  postMeta: source/_data/post-meta.swig
   #postBodyEnd: source/_data/post-body-end.swig
   #footer: source/_data/footer.swig
   #bodyEnd: source/_data/body-end.swig
@@ -260,15 +260,6 @@ symbols_count_time:
   separated_meta: true
   item_text_post: true
   item_text_total: true
-  awl: 2 #平均每个字符的长度
-  wpm: 300 #words per minute
-
-post_wordcount:
-  item_text: true
-  wordcount: true
-  min2read: true
-  totalcount: true
-  separated_meta: true
 
 # Use icon instead of the symbol # to indicate the tag at the bottom of the post
 tag_icon: true
@@ -385,7 +376,7 @@ back2top:
   # Back to top in sidebar.
   sidebar: false
   # Scroll percent label in b2t button.
-  scrollpercent: false
+  scrollpercent: true
 
 # Reading progress bar
 reading_progress:

@@ -129,7 +129,7 @@ menu:
   tags: /tags/ || fa fa-tags
   categories: /categories/ || fa fa-th
   archives: /archives/ || fa fa-archive
-  个人站: /webpage/|| heartbeat
+  个人站: /webpage/|| fa fa-heartbeat
 
 # Enable / Disable menu icons / item badges.
 menu_settings:

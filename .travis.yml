@@ -30,7 +30,7 @@ branches:
 
 env:
  global:
-   # Github Pages
+   # Github Pages 
    - GH_REF: github.com/lh123lh/lh123lh.github.io
    # Coding Pages
    - CO_REF: e.coding.net/lh123lh/lh123lh.coding.me.git

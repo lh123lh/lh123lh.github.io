@@ -125,7 +125,7 @@ plugins: hexo-generate-feed
 
 # 看板动画配置
 live2d:
-  enable: true
+  enable: false
   scriptFrom: local
   pluginRootPath: live2dw/
   pluginJsPath: lib/

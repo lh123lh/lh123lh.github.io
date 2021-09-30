@@ -13,8 +13,19 @@
     </span>
   {%- endif %}
 
-  <span class="site-pv" title="{{ __('footer.total_views') }}">
-    经过<span id="busuanzi_value_site_pv"></span>次回眸与你相遇
-  </span>
+  {%- if theme.busuanzi_count.total_visitors and theme.busuanzi_count.total_views %}
+    <span class="post-meta-divider">|</span>
+  {%- endif %}
+
+  {%- if theme.busuanzi_count.total_views %}
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="{{ theme.busuanzi_count.total_views_icon }}"></i>
+      </span>
+      <span class="site-pv" title="{{ __('footer.total_views') }}">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+  {%- endif %}
 </div>
 {%- endif %}

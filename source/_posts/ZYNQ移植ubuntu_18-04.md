@@ -155,15 +155,7 @@ $ rm ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 安装包管理器 网卡管理模块
 ```bash
 $ apt-get install synaptic
-~~$ apt-get install network-manager network-manager-gnome~~
 $ apt-get install ifupdown
-```
-
-~~NetworkManager默认eth0为unmanaged状态,需要手动修改配置文件,否则开机后eth0无法自动dhcp~~
-```bash
-~~$ cd /usr/lib/NerworkManager/conf.d/~~
-~~$ rm 10-globally-managed-devices.conf~~
-~~$ touch 10-globally-managed-devices.conf~~
 ```
 
 添加中文支持

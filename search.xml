@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>ZYNQ平台_AR合集</title>
+    <url>/2020/08/13/ZYNQ%E5%B9%B3%E5%8F%B0-AR%E5%90%88%E9%9B%86/</url>
+    <content><![CDATA[<p>在使用zynq/zynqMP平台的时候会遇到形形色色的问题, 在翻阅大量的资料后可能就会找到解决办法, 在此将这些问题以及解决方案记录下来以备后用.</p>
+<span id="more"></span>
+<h2 id="问题1">问题1</h2>
+<p><strong>在vivado中使用HardWare Manager调试芯片会导致开发板上运行的Linux系统出现各种问题,例如死机、无法启动等等</strong></p>
+<h3 id="解决方案">解决方案</h3>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">1.如果是手动编译的源码,可以在bootargs里添加以下配置: clk_ignore_unused cpuidle.off=1</span><br><span class="line">2.如果是使用Petalinux, 只需要在内核配置中取消勾选以下选项即可:</span><br><span class="line">CPU Power Management --&gt; </span><br><span class="line">    CPU Idle ---&gt;</span><br><span class="line">        [ ] CPU idle PM support</span><br></pre></td></tr></table></figure>
+<p>注:参考自Xilinx <a href="https://www.xilinx.com/support/answers/69143.html">AR#69143</a></p>
+<h2 id="问题2">问题2</h2>
+<p><strong>用PetaLinux 2018.3版本编译的启动文件在启动时会报错:“MMC:   sdhci_transfer_data: Error detected in status(0x208000)!”,之后系统无法正常启动</strong></p>
+<h3 id="解决方案-v2">解决方案</h3>
+<p>这个问题实际上官方之前已经发现，并且在petalinux2017.4之后的版本进行了修复<a href="https://www.xilinx.com/support/answers/69780.html?tdsourcetag=s_pcqq_aiomsg">AR#69780</a>，但是修复并没有完全解决问题。在版本修复之前，问题的来源是在petalinux-config设置主SD为1后，并没有能够成功修改uboot的启动指令，故给出了AR69780中的解决方案，但是解决方案并不完美。</p>
+<p>只需在project-spec/meta-user/recipes-bsp/u-boot/files/platform-top.h 文件的末尾加入下面的代码:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/*   fix codes  */</span><br><span class="line">#ifdef CONFIG_BOOTCOMMAND</span><br><span class="line">#undef CONFIG_BOOTCOMMAND</span><br><span class="line">#define CONFIG_BOOTCOMMAND	&quot;mmc dev $&#123;sdbootdev&#125;; run default_bootcmd&quot;</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+]]></content>
+      <tags>
+        <tag>ZYNQ</tag>
+        <tag>嵌入式开发</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>GST使用笔记</title>
+    <url>/2020/07/28/GST%E4%BD%BF%E7%94%A8%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<p>这段时间在Mpsoc平台调试了MIPI 摄像头,在此记录下如何使用gst(gstreamer 1.0)工具直接在DP端口上显示摄像头采集的视频或者通过网络流传输到PC显示.</p>
+<p>操作系统: Ubuntu 18.04 LTS<br>
+开发板  : MYIR Fx3<br>
+开发工具: PetaLinux 2019.1</p>
+<span id="more"></span>
+<h2 id="1-安装GST-1-0版本">1.安装GST-1.0版本</h2>
+<p>执行以下命令配置rootfs:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ petalinux-config -c rootfs:</span><br><span class="line">    Petalinux Package Groups --&gt;</span><br><span class="line">        packagegroup-petalinux-gstreamer --&gt;</span><br><span class="line">            packagegroup-petalinux-gstreamer</span><br></pre></td></tr></table></figure>
+<p>这样算是勾选了Xilinx集成好的gst工具,但是这套工具默认不会安装x264编解码的插件,还需要另行配置:</p>
+<p><strong>a.确保<Petalinux installed directory>/components/yocto/source/aarch64/layers/core/meta/recipes-multimedia/gstreamer目录下有“<a href="http://gst-plugins-ugly-1.14.4.bb">gst-plugins-ugly-1.14.4.bb</a>”这个文件</strong><br>
+<strong>b.在<petalinux-project-root>/project-spec/meta-user/recipes-core/images/petalinux-image.bbappend文件中添加以下内容:</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">IMAGE_INSTALL_append = <span class="string">&quot; gstreamer1.0-plugins-ugly&quot;</span></span><br></pre></td></tr></table></figure>
+<p><strong>c.在<petalinux-project-root>/project-spec/meta-user/conf/layer.conf中添加以下内容:</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PACKAGECONFIG_append_pn-gstreamer1.0-plugins-ugly = <span class="string">&quot; x264&quot;</span></span><br></pre></td></tr></table></figure>
+<p><strong>d.在<petalinux-project-root>/project-spec/meta-user/conf/petalinuxbsp.conf中添加以下内容:</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">LICENSE_FLAGS_WHITELIST_append = <span class="string">&quot;commercial&quot;</span></span><br></pre></td></tr></table></figure>
+<p><em>如果不添加这个会报错:</em></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gstreamer1.0-libav was skipped: because it has a restricted license not whitelisted <span class="keyword">in</span> LICENSE_FLAGS_WHITELIST</span><br></pre></td></tr></table></figure>
+<p><strong>e.重新运行petalinux-config -c rootfs命令,选择:</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ petalinux-config -c rootfs:</span><br><span class="line">    user packages --&gt;</span><br><span class="line">        gstreamer1.0-plugins-ugly</span><br></pre></td></tr></table></figure>
+<h2 id="2-视频流测试">2.视频流测试</h2>
+<p><strong>小球测试,验证gst功能是否正常:</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gst-launch-1.0 -v videotestsrc pattern=ball name=left ! fbdevsink  </span><br></pre></td></tr></table></figure>
+<p>注意:在ZYNQMP平台上,只能用fbdevsink这个sink,使用autovideosink无效.<br>
+<strong>通过DP口显示视频流:</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gst-launch-1.0 v4l2src device=/dev/video1 ! <span class="string">&#x27;video/x-raw,width=1920,height=1080,framerate=30/1&#x27;</span> ! queue2 ! videorate ! videoscale ! videoconvert ! fbdevsink</span><br></pre></td></tr></table></figure>
+<p><strong>全屏显示:</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gst-launch-1.0 v4l2src device=/dev/video1 ! <span class="string">&#x27;video/x-raw,width=1920,height=1080,framerate=30/1&#x27;</span> ! queue2 ! videorate ! videoscale ! videoconvert ! kmssink bus-id=fd4a0000.zynqmp-display fullscreen-overlay=1  </span><br></pre></td></tr></table></figure>
+<h2 id="3-网络流测试">3.网络流测试</h2>
+<p><strong>zynqMP端:</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=5/1 ! videorate ! videoscale ! videoconvert ! x264enc ! h264parse config-interval=-1 ! rtph264pay ! udpsink host=192.168.30.218 port=5600</span><br></pre></td></tr></table></figure>
+<p><strong>PC端:</strong><br>
+先在PC上安装<a href="https://www.videolan.org/">VLC播放器</a>新建一个文件并命名为test.sdp,用文本编辑器打开并填上以下内容:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">m=video 5600 RTP/AVP 96</span><br><span class="line"></span><br><span class="line">a=rtpmap:96 H264</span><br><span class="line"></span><br><span class="line">a=framerate:15</span><br><span class="line"></span><br><span class="line">c=IN IP4 192.168.30.218</span><br></pre></td></tr></table></figure>
+<p>使用vlc播放器打开这个文件即可接收到zynqMP端发出的网络流</p>
+<h2 id="4-保存视频流为mp4">4.保存视频流为mp4</h2>
+<p><strong>使用以下命令将视频流保存到mp4文件中:</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gst-launch-1.0 v4l2src device=/dev/video1 ! video/x-raw,width=1920,height=1080,framerate=15/1 ! videoconvert ! x264enc threads=4 sliced-threads=TRUE tune=zerolatency ! matroskamux ! filesink location = output1.mp4</span><br></pre></td></tr></table></figure>
+]]></content>
+      <tags>
+        <tag>ZYNQ</tag>
+        <tag>Video</tag>
+        <tag>嵌入式开发</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>配置Gadget实现USB大容量存储</title>
+    <url>/2020/06/15/%E9%85%8D%E7%BD%AEGadget%E5%AE%9E%E7%8E%B0USB%E5%A4%A7%E5%AE%B9%E9%87%8F%E5%AD%98%E5%82%A8/</url>
+    <content><![CDATA[<p>在开发板上USB端口默认都是HOST模式,但是很多用户需要将USB配置成Peripheral模式(模拟U盘),在此记录配置过程.</p>
+<p>操作系统: Ubuntu 18.04 LTS<br>
+开发板  : MYIR Z-turn Board</p>
+<span id="more"></span>
+<h2 id="1-内核配置">1.内核配置</h2>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ make menuconfig:</span><br><span class="line">    Device Drivers</span><br><span class="line">    USB support</span><br><span class="line">        &lt;*&gt; ChipIdea Highspeed Dual Role Controller</span><br><span class="line">        &lt;*&gt; ChipIdea device controller</span><br><span class="line">        &lt;*&gt; USB Gadget Support</span><br><span class="line">            &lt;M&gt; USB <span class="built_in">functions</span> configurable through configfs</span><br><span class="line">                [*] Mass storage</span><br><span class="line">            &lt;M&gt; USB Gadget precomposed configurations</span><br><span class="line">                &lt;M&gt; Mass Storage Gadget</span><br></pre></td></tr></table></figure>
+<h2 id="2-设备树配置">2.设备树配置</h2>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">usb_0: usb@e0002000 &#123;</span><br><span class="line">     compatible = <span class="string">&quot;xlnx,zynq-usb-2.20.a&quot;</span>, <span class="string">&quot;chipidea,usb2&quot;</span>;</span><br><span class="line">     clocks = &lt;&amp;clkc 28&gt;;</span><br><span class="line">     dr_mode = <span class="string">&quot;peripheral&quot;</span>;</span><br><span class="line">     interrupt-parent = &lt;&amp;intc&gt;;</span><br><span class="line">     interrupts = &lt;0 21 4&gt;;</span><br><span class="line">     reg = &lt;0xe0002000 0x1000&gt;;</span><br><span class="line">     usb-phy = &lt;&amp;usb_phy0&gt;;</span><br><span class="line"> &#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="3-编译">3.编译</h2>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ make uImage</span><br><span class="line">$ make dtb</span><br><span class="line">$ make modules:</span><br><span class="line">    需要用到这几个模块: libcomposite.ko usb_f_mass_storage.ko g_mass_storage.ko</span><br></pre></td></tr></table></figure>
+<h2 id="4-使用">4.使用</h2>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ insmod libcomposite.ko</span><br><span class="line">$ insmod usb_f_mass_storage.ko</span><br><span class="line">$ insmod g_mass_storage.ko file=/dev/mmcblk0 removable=1</span><br></pre></td></tr></table></figure>
+<p>输出以下信息则表示配置成功:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Mass Storage Function, version: 2009/09/11</span><br><span class="line">LUN: removable file: (no medium)</span><br><span class="line">LUN: removable file: /dev/mmcblk0</span><br><span class="line">Number of LUNs=1</span><br><span class="line">g_mass_storage gadget: Mass Storage Gadget, version: 2009/09/11</span><br><span class="line">g_mass_storage gadget: userspace failed to provide iSerialNumber</span><br><span class="line">g_mass_storage gadget: g_mass_storage ready</span><br></pre></td></tr></table></figure>
+<p>驱动加载成功后即可将开发板的USB口与电脑连接查看效果.</p>
+]]></content>
+      <tags>
+        <tag>ZYNQ</tag>
+        <tag>嵌入式开发</tag>
+        <tag>ubuntu 移植</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ZYNQ在内核对PL编程</title>
+    <url>/2019/04/08/ZYNQ%E5%9C%A8%E5%86%85%E6%A0%B8%E5%AF%B9PL%E7%BC%96%E7%A8%8B/</url>
+    <content><![CDATA[<p>在zynq7000系列处理器上对PL编程有三种方式:<br>
+1.使用fsbl,将bitstream集成到boot.bin中<br>
+2.使用uboot命令<br>
+3.在linux内核中使用devcfg驱动</p>
+<p>前两种方式很常用,也很简单,所以本文只介绍第三种方式</p>
+<p>操作系统: Ubuntu 16.04 LTS<br>
+开发板  : MYIR Z-turn Board<br>
+内核版本: 4.14</p>
+<span id="more"></span>
+<h2 id="1-将比特流应转换为二进制">1.将比特流应转换为二进制</h2>
+<p>注:这部分内容引用自<a href="https://china.xilinx.com/support/answers/46913.html">Xilinx AR#46913</a><br>
+使用SDK里的bootgen工具可完成此操作,BootGen 工具使用“BIF”输入文件,它可描述引导映像的结构.</p>
+<h3 id="BIF-文件示例">BIF 文件示例:</h3>
+<pre><code>the_ROM_image:
+&#123;
+    [bootloader]&lt;fsbl_name&gt;.elf
+    &lt;pl_bitstream_name&gt;.bit
+    &lt;u-boot_name&gt;.elf
+&#125;
+</code></pre>
+<p>在SDK中打开shell,执行以下命令即可将bitstream转换为bin:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ bootgen -image fsbl.bif -w -process_bitstream bin</span><br></pre></td></tr></table></figure>
+<p>完成后即可在bitstream所在目录找到对应的bin文件</p>
+<h2 id="2-配置linux-kernel">2.配置linux kernel</h2>
+<h3 id="在menuconfig中依次选择以下选项">在menuconfig中依次选择以下选项:</h3>
+<pre><code>Device Drivers → FPGA Configuration Framework
+Device Drivers → FPGA Configuration Framework → FPGA Bridge Framwork
+Device Drivers → FPGA Configuration Framework → FPGA Region
+Device Drivers → Device Tree overlays → Device Tree Overlays ConfigFS interface
+</code></pre>
+<p>具体配置详情可参见<a href="https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18841645/Solution+Zynq+PL+Programming+With+FPGA+Manager">Xilinx wiki</a></p>
+<h2 id="3-对PL编程">3.对PL编程</h2>
+<h3 id="3-1-使用sysfs接口">3.1 使用sysfs接口</h3>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ mkdir -p /lib/firmware/</span><br><span class="line">$ cp design_1_wrapper.bit.bin /lib/firmware</span><br><span class="line">$ echo 8 &gt; /sys/class/fpga_manager/fpga0/flags</span><br><span class="line">$ echo design_1_wrapper.bit.bin &gt; /sys/class/fpga_manager/fpga0/firmware</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-使用fpgautil工具">3.2 使用fpgautil工具</h3>
+<p><a href="https://xilinx-wiki.atlassian.net/wiki/download/attachments/18841847/fpgautil.c?version=2&amp;modificationDate=1549947129137&amp;cacheVersion=1&amp;api=v2">fpgautil</a>是xilinx官方为MPSOC提供的工具,但是在zynq7000上也可以使用.</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$ fpgautil -b ./design_1_wrapper.bit.bin</span><br></pre></td></tr></table></figure>]]></content>
+      <tags>
+        <tag>ZYNQ</tag>
+        <tag>嵌入式开发</tag>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ZYNQ 7000 CAN调试记录</title>
+    <url>/2019/03/26/ZYNQ-7000-CAN%E8%B0%83%E8%AF%95%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<p>在zynq 7000平台CAN调试过程中,遇到了一些问题,在参阅xilinx Wiki后,顺利调通,故将调试过程记录下来以备后用</p>
+<p>操作系统: Ubuntu 16.04 LTS<br>
+开发板  : MYIR Z-turn Board</p>
+<span id="more"></span>
+<h2 id="1-说明">1.说明</h2>
+<p>CAN是控制器局域网络(Controller Area Network, CAN)的简称,是由以研发和生产汽车电子产品著称的德国BOSCH公司开发的,并最终成为国际标准（ISO 11898）,是国际上应用最广泛的现场总线之一.详情请参考<a href="https://baike.baidu.com/item/CAN%E6%80%BB%E7%BA%BF/297754?fr=aladdin">百科</a></p>
+<h2 id="2-linux-kernel和devicetree的配置">2.linux kernel和devicetree的配置</h2>
+<h3 id="2-1-Linux-kernel配置">2.1 Linux kernel配置</h3>
+<p>在linux kernel中,Xilinx CAN 驱动默认是disable状态,按照下图打开对应选项即可:<br>
+<img src="../../../../images/Xilinx_CAN_Kernel_config.png" alt="avatar"></p>
+<h3 id="2-2-Devicetree配置">2.2 Devicetree配置</h3>
+<p>通过查阅相关文档,Xilinx CAN driver在Devicetree中的配置如下:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">zynq_can_0: can@e0008000 &#123;</span><br><span class="line">    compatible = <span class="string">&quot;xlnx,zynq-can-1.0&quot;</span>;</span><br><span class="line">    clocks = &lt;&amp;clkc 19&gt;, &lt;&amp;clkc 36&gt;;</span><br><span class="line">    clock-names = <span class="string">&quot;can_clk&quot;</span>, <span class="string">&quot;pclk&quot;</span>;</span><br><span class="line">    reg = &lt;0xe0008000 0x1000&gt;;</span><br><span class="line">    interrupts = &lt;0 28 4&gt;;</span><br><span class="line">    interrupt-parent = &lt;&amp;intc&gt;;</span><br><span class="line">    tx-fifo-depth = &lt;0x40&gt;;</span><br><span class="line">    rx-fifo-depth = &lt;0x40&gt;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="3-canutils和iproute2的编译以及使用">3.canutils和iproute2的编译以及使用</h2>
+<h3 id="3-1-canutils工具的交叉编译">3.1 canutils工具的交叉编译</h3>
+<p>下载源码:<br>
+<a href="https://public.pengutronix.de/software/libsocketcan/libsocketcan-0.0.11.tar.bz2">libsocketcan-0.0.11.tar.gz</a><br>
+<a href="https://public.pengutronix.de/software/socket-can/canutils/v4.0/canutils-4.0.6.tar.bz2">canutils-4.0.6.tar.gz</a></p>
+<p>交叉编译libsocketcan:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> libsocketcan-0.0.11</span><br><span class="line">$ ./configure CC=arm-linux-gnueabihf-gcc --host=arm-linux-gnueabihf --prefix=$(<span class="built_in">pwd</span>)/install</span><br><span class="line">$ make -j4</span><br><span class="line">$ make install</span><br></pre></td></tr></table></figure>
+<p>交叉编译canutils:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> canutils-4.0.6</span><br><span class="line">$ ./configure CC=arm-linux-gnueabihf-gcc --host=arm-linux-gnueabihf --prefix=$(<span class="built_in">pwd</span>)/install libsocketcan_LIBS=-lsocketcan LDFLAGS=<span class="string">&quot;-L/home/Codes/libsocketcan-0.0.11/install/lib/&quot;</span> libsocketcan_CFLAGS=<span class="string">&quot;-I/home/Codeslibsocketcan-0.0.11/install/include/&quot;</span></span><br><span class="line">$ make -j4</span><br><span class="line">$ make install</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-iproute2工具的交叉编译">3.2 iproute2工具的交叉编译</h3>
+<p>下载源码:<br>
+<a href="https://mirrors.edge.kernel.org/pub/linux/utils/net/iproute2/iproute2-4.9.0.tar.gz">iproute2-4.9.0.tar.gz</a></p>
+<p>首先修改源码根目录下的Makefile:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">将CC那一行改为:</span><br><span class="line">CC := arm-linux-gnueabihf-gcc</span><br></pre></td></tr></table></figure>
+<p>交叉编译:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ make -j4</span><br></pre></td></tr></table></figure>
+<p>编译过程可能会出错,但是我们需要用到的ip工具已编译出来,其它工具并不需要,所以忽略错误即可</p>
+<h3 id="3-3测试CAN的功能">3.3测试CAN的功能</h3>
+<p>以下调试过程摘抄自<a href="https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842496/Linux+CAN+driver">Xilinx Wiki</a>,经过验证,此方法可行</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">1. Set bit-timing</span><br><span class="line">Can supports bitrates upto 1Mb/s. Xilinx CAN h/w and driver supports these bit rates</span><br><span class="line">Note: Triple sampling is not supported by Xilinx CAN H/W. </span><br><span class="line">$ ./ip <span class="built_in">link</span> <span class="built_in">set</span> can0 <span class="built_in">type</span> can bitrate 200000</span><br><span class="line">or</span><br><span class="line">$ ./canconfig can0 bitrate 200000</span><br><span class="line">2. Bring up the device</span><br><span class="line">$ ./ip <span class="built_in">link</span> <span class="built_in">set</span> can0 up</span><br><span class="line">or</span><br><span class="line">$ ./canconfig can0 start</span><br><span class="line">3. Bring down the device</span><br><span class="line">$ ./ip <span class="built_in">link</span> <span class="built_in">set</span> can0 down</span><br><span class="line">or</span><br><span class="line">$ ./canconfig can0 stop</span><br><span class="line">4. Transmit and receive packets with standard <span class="built_in">id</span> number</span><br><span class="line">$ ./cansend can0 -i 0x14 &lt;bytes&gt;</span><br><span class="line">$ ./candump can0</span><br><span class="line">5. Transmit and receive packets with extended <span class="built_in">id</span> number (--loop argument here)</span><br><span class="line">$ ./cansend can0 -i 0x333 &lt;bytes&gt;</span><br><span class="line">$ ./candump can0</span><br><span class="line">6. Loopback mode</span><br><span class="line">$ ./canconfig can0 ctrlmode loopback on </span><br><span class="line">7. Checking <span class="built_in">link</span> state (checking bitrate/errors/packets)</span><br><span class="line">$ ./ip -d -s <span class="built_in">link</span> show can0</span><br><span class="line">8. Checking net device state</span><br><span class="line">$ ifconfig can0</span><br><span class="line">9. Getting statistics via proc</span><br><span class="line">$ <span class="built_in">cat</span> /proc/net/can/stats</span><br><span class="line">10. Socket CAN core uses several filter lists to deliver received CAN frames to CAN protocol modules. These</span><br><span class="line">receive lists, their filters and the count of filter matches can be checked <span class="keyword">in</span> the appropriate receive list. All entries contain the</span><br><span class="line">device and a protocol module identifier:</span><br><span class="line">$ <span class="built_in">cat</span> /proc/net/can/rcvlist_all</span><br><span class="line">rcvlist_all - list <span class="keyword">for</span> unfiltered entries (no filter operations)</span><br><span class="line">rcvlist_eff - list <span class="keyword">for</span> single extended frame (EFF) entries</span><br><span class="line">rcvlist_err - list <span class="keyword">for</span> error message frames masks</span><br><span class="line">rcvlist_fil - list <span class="keyword">for</span> mask/value filters</span><br><span class="line">rcvlist_inv - list <span class="keyword">for</span> mask/value filters (inverse semantic)</span><br><span class="line">rcvlist_sff - list <span class="keyword">for</span> single standard frame (SFF) entries</span><br></pre></td></tr></table></figure>]]></content>
+      <tags>
+        <tag>ZYNQ</tag>
+        <tag>嵌入式开发</tag>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>在arm平台移植ntp</title>
+    <url>/2019/03/13/ntp%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91/</url>
+    <content><![CDATA[<p>由于工作需求,需要在zynq平台使用ntp相关程序,在ntp的移植过程中遇到了一些坑,在此纪录下来</p>
+<p>操作系统: Ubuntu 16.04 LTS<br>
+开发板  : MYIR Z-turn Board</p>
+<span id="more"></span>
+<h2 id="1-说明">1.说明</h2>
+<p>网络时间协议Network Time Protocol(NTP) 是一种确保时钟保持准确的方法。如果可以访问互联网，只需安装ntp的客户端软件到互联网上的公共ntp服务器自动修正时间即可.具体说明可参考百科<a href="https://baike.baidu.com/item/NTP/1100433">NTP</a>.</p>
+<h2 id="2-准备工作">2.准备工作</h2>
+<p>由于ntp在依赖openssl库,所以在交叉编译ntp之前需要先交叉编译openssl.<br>
+<em><strong>注意:新版本的ntp依赖1.1.1版本的openssl!!!</strong></em></p>
+<h3 id="2-1下载源码">2.1下载源码</h3>
+<p><a href="http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/ntp-4.2/ntp-4.2.8p13.tar.gz">ntp-4.2.8p13.tar.gz</a><br>
+<a href="https://www.openssl.org/source/openssl-1.1.1b.tar.gz">openssl-1.1.1b.tar.gz</a></p>
+<h3 id="2-2解压源码">2.2解压源码</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> -p ~/work &amp;&amp; <span class="built_in">cd</span> ~/work</span><br><span class="line">$ tar -xvf ntp-4.2.8p13.tar.gz</span><br><span class="line">$ tar -xvf openssl-1.1.1b.tar.gz</span><br></pre></td></tr></table></figure>
+<h2 id="3-移植步骤">3.移植步骤</h2>
+<h3 id="3-1-交叉编译openssl">3.1 交叉编译openssl</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> openssl-1.1.1b/</span><br><span class="line">$ ./config no-asm -shared --prefix=$(<span class="built_in">pwd</span>)/install</span><br></pre></td></tr></table></figure>
+<p>上述步骤只是生成了Makefile,还没有设置交叉编译工具链,需要手动设置.<br>
+用编辑器打开Makefile,搜索&quot;-m64&quot;,总共找到两处,删除之.搜索&quot;CROSS_COMPILE=“,改为&quot;CROSS_COMPILE=arm-linux-gnueabihf-”.<br>
+接着进行编译:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ make -j4</span><br></pre></td></tr></table></figure>
+<p>耐心等待一段时候后就还完成编译,继续:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ make install</span><br></pre></td></tr></table></figure>
+<p>一段时间后就会完成.此时在当前目录下就会产生一个 install 文件夹,编译出来的产物全部在里面了.<br>
+openssl交叉编译完成.</p>
+<h3 id="3-2-交叉编译ntp">3.2 交叉编译ntp</h3>
+<p>由于ntp依赖于openssl,所以先简单粗暴的将相关头文件复制到ntp源码的include文件夹下:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cp</span> -rf ~/work/openssl-1.1.1b/install/include/* ~/work/ntp-4.2.8p13/include</span><br></pre></td></tr></table></figure>
+<p>接下来进行ntp的交叉编译:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ~/work/ntp-4.2.8p13/</span><br><span class="line">$ ./configure CC=arm-linux-gnueabihf-gcc LDFLAGS=-L/home/liuheng/Desktop/openssl-1.1.1b/install/lib --host=arm-linux-gnueabihf --prefix=$(<span class="built_in">pwd</span>)/install  --with-yielding-select=<span class="built_in">yes</span></span><br><span class="line">$ make -j4</span><br><span class="line">$ make install</span><br></pre></td></tr></table></figure>
+<p>耐心等待一段时间后,编译完成,编译的产物在生成的 install/ 文件夹里</p>
+]]></content>
+      <tags>
+        <tag>嵌入式开发</tag>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>ZYNQ移植ubuntu18.04</title>
+    <url>/2019/03/11/ZYNQ%E7%A7%BB%E6%A4%8Dubuntu_18-04/</url>
+    <content><![CDATA[<p>由于工作原因，需要在xilinx zynq7000系列的SOC上移植ubuntu 18.04，在此，记录移植过程。</p>
+<p>操作系统: Ubuntu 18.04 LTS<br>
+开发板  : MYIR Z-turn Board</p>
+<span id="more"></span>
+<h2 id="1-下载根文件系统">1.下载根文件系统</h2>
+<p>首先创建工作路径:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">mkdir</span> -p ~/ubuntu_rootfs</span><br><span class="line">$ <span class="built_in">cd</span> ~/ubuntu_rootfs</span><br><span class="line">$ <span class="built_in">mkdir</span> -p tmp</span><br></pre></td></tr></table></figure>
+<p>下载根文件系统,这里我用的是官方的下载地址,如果下载速度很慢,也可以从<a href="https://mirrors.tuna.tsinghua.edu.cn/">清华大学开源软件镜像站</a>下载对应版本.由于我们的开发板是arm平台,所以下载 <a href="https://mirrors.tuna.tsinghua.edu.cn/ubuntu-cdimage/ubuntu-base/releases/18.04.4/release/ubuntu-base-18.04-base-armhf.tar.gz">ubuntu-base-18.04-core-armhf.tar.gz</a>.<br>
+<em><strong>注意:下载完成后一定要用root权限解压,且务必解压到linux的分区,否则最终生成的版本在使用过程中会出现各种问题!!!</strong></em></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo su</span><br><span class="line">$ tar -xvf ubuntu-base-18.04-core-armhf.tar.gz -C ~/ubuntu_rootfs/tmp</span><br></pre></td></tr></table></figure>
+<p>解压后得到:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">ls</span> tmp/</span><br><span class="line">bin   dev  home  media  opt   root  sbin  sys  var</span><br><span class="line">boot  etc  lib   mnt    proc  run   srv   tmp  usr</span><br></pre></td></tr></table></figure>
+<br/>
+<h2 id="2-安装qemu-user-static工具">2.安装qemu-user-static工具</h2>
+<p>关于QEMU可参考百度百科的简介:<a href="https://baike.baidu.com/item/QEMU/1311178?fr=aladdin">QEMU</a>.</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ apt-get install qemu-user-static</span><br></pre></td></tr></table></figure>
+<p>拷贝qemu-arm-static到刚刚解压出来的目录</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cp</span> $(<span class="built_in">which</span> qemu-arm-static) ~/ubuntu_rootfs/tmp/usr/bin</span><br></pre></td></tr></table></figure>
+<br/>
+<h2 id="3-网络配置">3.网络配置</h2>
+<p>修改根文件系统的软件源</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> ~/ubuntu_rootfs/tmp</span><br><span class="line">$ sudo gedit etc/apt/source.list</span><br></pre></td></tr></table></figure>
+<p>我这里用的是清华大学的软件源</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># deb cdrom:[Ubuntu 18.04 LTS _Xenial Xerus_ - Release amd64 (20160420.1)]/ xenial main restricted</span></span><br><span class="line">deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial main restricted</span><br><span class="line">deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial-updates main restricted</span><br><span class="line">deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial universe</span><br><span class="line">deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial-updates universe</span><br><span class="line">deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial multiverse</span><br><span class="line">deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial-updates multiverse</span><br><span class="line">deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial-backports main restricted universe multiverse</span><br><span class="line">deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial-security main restricted</span><br><span class="line">deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial-security universe</span><br><span class="line">deb http://mirrors.tuna.tsinghua.edu.cn/ubuntu-ports/ xenial-security multiverse</span><br></pre></td></tr></table></figure>
+<p>为了制作成功的根文件系统能够联网,可以直接拷贝本机的dns配置文件到根文件系统的相应位置</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo <span class="built_in">cp</span> /etc/resolv.conf etc/resolv.conf</span><br></pre></td></tr></table></figure>
+<br/>
+<h2 id="4-挂在根文件系统并chroot">4.挂在根文件系统并chroot</h2>
+<p>我的挂载过程使用shell脚本实现的,具体内容如下:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">mnt</span></span>() &#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;MOUNTING&quot;</span></span><br><span class="line">    sudo mount -t proc /proc <span class="variable">$&#123;2&#125;</span>proc</span><br><span class="line">    sudo mount -t sysfs /sys <span class="variable">$&#123;2&#125;</span>sys</span><br><span class="line">    sudo mount -o <span class="built_in">bind</span> /dev <span class="variable">$&#123;2&#125;</span>dev</span><br><span class="line">    sudo mount -o <span class="built_in">bind</span> /dev/pts <span class="variable">$&#123;2&#125;</span>dev/pts        </span><br><span class="line">    sudo <span class="built_in">chroot</span> <span class="variable">$&#123;2&#125;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">umnt</span></span>()&#123;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;UNMOUNTING&quot;</span></span><br><span class="line">    sudo umount <span class="variable">$&#123;2&#125;</span>proc</span><br><span class="line">    sudo umount <span class="variable">$&#123;2&#125;</span>sys</span><br><span class="line">    sudo umount <span class="variable">$&#123;2&#125;</span>dev/pts</span><br><span class="line">    sudo umount <span class="variable">$&#123;2&#125;</span>dev</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$1</span>&quot;</span> == <span class="string">&quot;-m&quot;</span> ] &amp;&amp; [ -n <span class="string">&quot;<span class="variable">$2</span>&quot;</span> ] ;</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    mnt <span class="variable">$1</span> <span class="variable">$2</span></span><br><span class="line"><span class="keyword">elif</span> [ <span class="string">&quot;<span class="variable">$1</span>&quot;</span> == <span class="string">&quot;-u&quot;</span> ] &amp;&amp; [ -n <span class="string">&quot;<span class="variable">$2</span>&quot;</span> ];</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">    umnt <span class="variable">$1</span> <span class="variable">$2</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;Either 1&#x27;st, 2&#x27;nd or bothparameters were missing&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;1&#x27;st parameter can be one ofthese: -m(mount) OR -u(umount)&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;2&#x27;nd parameter is the full pathof rootfs directory(with trailing &#x27;/&#x27;)&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;For example: mount -m/media/sdcard/&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="built_in">echo</span> 1st parameter : <span class="variable">$&#123;1&#125;</span></span><br><span class="line">    <span class="built_in">echo</span> 2nd parameter : <span class="variable">$&#123;2&#125;</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<p>挂载步骤:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo ./mount.sh -m ~/ubuntu_rootfs/tmp/</span><br></pre></td></tr></table></figure>
+<p>卸载步骤:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo ./mount.sh -u ~/ubuntu_rootfs/tmp/</span><br></pre></td></tr></table></figure>
+<br/>
+<h2 id="5-安装软件">5.安装软件</h2>
+<p>首先需要更新软件源:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ apt-get update</span><br></pre></td></tr></table></figure>
+<p>由于ubuntu core只包含最基础的软件,所以需要自行安装常用的软件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ apt-get install python3 wireless-tools vim sudo net-tools iputils-ping iproute2</span><br><span class="line">$ apt-get -y install udev</span><br></pre></td></tr></table></figure>
+<p>还需要安装图形操作界面,我安装的是xfce4:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ apt-get install xinit //startx</span><br><span class="line">$ apt-get install xdm //环境管理器</span><br><span class="line">$ apt-get install xfce4 //桌面环境</span><br></pre></td></tr></table></figure>
+<p>恢复Xfce4的默认配置</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">rm</span> ~/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml</span><br></pre></td></tr></table></figure>
+<p>安装包管理器 网卡管理模块</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ apt-get install synaptic</span><br><span class="line">$ apt-get install ifupdown</span><br></pre></td></tr></table></figure>
+<p>添加中文支持</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ apt-get install language-pack-zh-hant language-pack-zh-hans</span><br><span class="line">$ apt install -y --force-yes --no-install-recommends fonts-wqy-microhei</span><br><span class="line">$ apt install -y --force-yes --no-install-recommends ttf-wqy-zenhei</span><br><span class="line">然后</span><br><span class="line">$ dpkg-reconfigure locales</span><br><span class="line">选zh UTF-8</span><br><span class="line">$ locale-gen en_US.UTF-8</span><br></pre></td></tr></table></figure>
+<p>安装Chrome</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ apt-get install chromium-browser chromium-browser-l10n</span><br><span class="line">遇到chrome unlock keyring</span><br><span class="line">$ apt install seahorse</span><br><span class="line">终端输入 seahorse 然后点击Default lock,设置旧密码后,新密码不输入直接确认,可以解决此问题</span><br></pre></td></tr></table></figure>
+<p>图形界面的开启与关闭</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">取消自启</span><br><span class="line">$ update-rc.d -f gdm remove</span><br><span class="line"></span><br><span class="line">恢复自启</span><br><span class="line">$ update-rc.d gdm defaults</span><br></pre></td></tr></table></figure>
+<br/>
+<h2 id="6-用户配置">6.用户配置</h2>
+<p>首先设置root密码:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ passwd root</span><br></pre></td></tr></table></figure>
+<p>添加用户:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ adduser ubuntu</span><br></pre></td></tr></table></figure>
+<p>给新添加的用户分配权限:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ vi /etc/sudoers</span><br><span class="line">在<span class="string">&quot;root ALL=(ALL) ALL&quot;</span>这一行下面添加:</span><br><span class="line">ubuntu ALL=(ALL) ALL</span><br></pre></td></tr></table></figure>
+<br/>
+<h2 id="7-配置串口">7.配置串口</h2>
+<p>必须配置串口,否则挂载文件系统后,超级终端会没有输出</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ vi /etc/init/ttyPS0.conf</span><br></pre></td></tr></table></figure>
+<p>这个文件将在启动时通过UART端口生成一个控制台,我们需要将该文件的内容修改为如下所示:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">start on stopped rc or RUNLEVEL=[12345]</span><br><span class="line">stop on runlevel [!12345]</span><br><span class="line"></span><br><span class="line">respawn</span><br><span class="line"><span class="built_in">exec</span> /sbin/getty -L 115200 ttyPS0 vt102</span><br></pre></td></tr></table></figure>
+<p>我们还需要编辑 /etc/fstab 文件，以便在启动时挂载我们的根文件系统.我们的 /etc/fstab 文件应如下所示:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/dev/mmc.blk0p2 / ext4    relatime,errors=remount-ro  0   1</span><br></pre></td></tr></table></figure>
+<p>以上操作全部完成后,退出文件系统:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+<p>卸载根文件系统:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo ./mount.sh -u ~/ubuntu_rootfs/tmp/</span><br></pre></td></tr></table></figure>
+]]></content>
+      <tags>
+        <tag>ZYNQ</tag>
+        <tag>嵌入式开发</tag>
+        <tag>ubuntu 移植</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Buildroot 编译失败解决方案</title>
+    <url>/2019/03/06/buildroot_error_solution/</url>
+    <content><![CDATA[<p>在嵌入式linux开发过程中交叉编译buildroot时会出现很多错误导致编译无法继续进行,在此总结(“抄袭”,😜)了一些错误解决方案以备后用.</p>
+<span id="more"></span>
+<h2 id="Error-1">Error 1 :</h2>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">gdate.c:2497:7: error: format not a string literal</span><br></pre></td></tr></table></figure>
+<h3 id="Reason">Reason :</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">编译类openwrt sdk时，出现个gdate.c的错误，与编译器版本有关，打个patch就好</span><br></pre></td></tr></table></figure>
+<h3 id="Solution">Solution:</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">* Returns: number of characters written to the buffer, or 0 the buffer was too small</span><br><span class="line">*/</span><br><span class="line">+<span class="comment">#pragma GCC diagnostic push</span></span><br><span class="line">+<span class="comment">#pragma GCC diagnostic ignored &quot;-Wformat-nonliteral&quot; </span></span><br><span class="line">+</span><br><span class="line">gsize</span><br><span class="line">g_date_strftime (gchar *s,</span><br><span class="line">gsize slen,</span><br><span class="line">@@ -2549,3 +2552,5 @@ g_date_strftime (gchar *s,</span><br><span class="line"><span class="built_in">return</span> retval;</span><br><span class="line"><span class="comment">#endif</span></span><br><span class="line">&#125;</span><br><span class="line">+</span><br><span class="line">+<span class="comment">#pragma GCC diagnostic pop</span></span><br></pre></td></tr></table></figure>
+<p><br/></br></p>
+<h2 id="Error-2">Error 2 :</h2>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Unescaped left brace <span class="keyword">in</span> regex is illegal here <span class="keyword">in</span> regex; marked by &lt;-- HERE <span class="keyword">in</span> m/<span class="variable">$&#123; &lt;-- HERE ([^ \t=:+&#123;&#125;</span>]+)&#125;/ at xxxx/usr/bin/automake line 3939.</span><br></pre></td></tr></table></figure>
+<h3 id="Reason-v2">Reason :</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">出现的automake正则表达式问题。原因是Perl不支持以前的写法</span><br></pre></td></tr></table></figure>
+<h3 id="Solution-v2">Solution:</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># $text =~ s/\$&#123;([^ \t=:+&#123;&#125;]+)&#125;/substitute_ac_subst_variables_worker ($1)/ge;</span></span><br><span class="line"><span class="variable">$text</span> =~ s/\$[&#123;]([^ \t=:+&#123;&#125;]+)&#125;/substitute_ac_subst_variables_worker (<span class="variable">$1</span>)/ge;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <tags>
+        <tag>嵌入式开发</tag>
+      </tags>
+  </entry>
+</search>

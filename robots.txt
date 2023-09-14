@@ -1,0 +1,23 @@
+# hexo robots.txt
+User-agent: *
+Allow: /
+Allow: /archives/
+
+Disallow: /vendors/
+Disallow: /js/
+Disallow: /css/
+Disallow: /fonts/
+Disallow: /vendors/
+Disallow: /fancybox/
+
+Sitemap: http://lh123lh.github.io/sitemap.xml
+Sitemap: https://lh123lh.github.io/sitemap.xml
+
+Sitemap: http://lh123lh.github.io/baidusitemap.xml
+Sitemap: https://lh123lh.github.io/baidusitemap.xml
+
+Sitemap: http://lh123lh.coding.me/sitemap.xml
+Sitemap: https://lh123lh.coding.me/sitemap.xml
+
+Sitemap: http://lh123lh.coding.me/baidusitemap.xml
+Sitemap: https://lh123lh.coding.me/baidusitemap.xml

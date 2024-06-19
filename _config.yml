@@ -30,6 +30,7 @@ skip_render:
   - webpage/**
   - fodi/**
   - robots.txt
+  - tauri_app_cfg/**
 
 # Writing
 new_post_name: :title.md # File name of new posts

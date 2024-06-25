@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.2.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon.ico">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lh123lh.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在zynq 7000平台CAN调试过程中,遇到了一些问题,在参阅xilinx Wiki后,顺利调通,故将调试过程记录下来以备后用 操作系统: Ubuntu 16.04 LTS 开发板  : MYIR Z-turn Board">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ZYNQ 7000 CAN调试记录">
+<meta property="og:url" content="https://lh123lh.github.io/2019/03/26/ZYNQ-7000-CAN%E8%B0%83%E8%AF%95%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="Heng的blog">
+<meta property="og:description" content="在zynq 7000平台CAN调试过程中,遇到了一些问题,在参阅xilinx Wiki后,顺利调通,故将调试过程记录下来以备后用 操作系统: Ubuntu 16.04 LTS 开发板  : MYIR Z-turn Board">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://lh123lh.github.io/images/Xilinx_CAN_Kernel_config.png">
+<meta property="article:published_time" content="2019-03-26T08:50:36.000Z">
+<meta property="article:modified_time" content="2024-06-25T03:25:36.118Z">
+<meta property="article:author" content="Heng">
+<meta property="article:tag" content="ZYNQ">
+<meta property="article:tag" content="嵌入式开发">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lh123lh.github.io/images/Xilinx_CAN_Kernel_config.png">
+
+<link rel="canonical" href="https://lh123lh.github.io/2019/03/26/ZYNQ-7000-CAN%E8%B0%83%E8%AF%95%E8%AE%B0%E5%BD%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ZYNQ 7000 CAN调试记录 | Heng的blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-135879986-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-135879986-1');
+      }
+    </script>
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?9e9f2b19b360797df41288e353196ae8";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Heng的blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Heng的blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">0</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">8</span></a>
+
+  </li>
+        <li class="menu-item menu-item-个人站">
+
+    <a href="/webpage/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>个人站</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://lh123lh.github.io/2019/03/26/ZYNQ-7000-CAN%E8%B0%83%E8%AF%95%E8%AE%B0%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/Heng.png">
+      <meta itemprop="name" content="Heng">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Heng的blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ZYNQ 7000 CAN调试记录
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-03-26 08:50:36" itemprop="dateCreated datePublished" datetime="2019-03-26T08:50:36+00:00">2019-03-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-06-25 03:25:36" itemprop="dateModified" datetime="2024-06-25T03:25:36+00:00">2024-06-25</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.8k</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在zynq 7000平台CAN调试过程中,遇到了一些问题,在参阅xilinx Wiki后,顺利调通,故将调试过程记录下来以备后用</p>
+<p>操作系统: Ubuntu 16.04 LTS<br>
+开发板  : MYIR Z-turn Board</p>
+<span id="more"></span>
+<h2 id="1-说明">1.说明</h2>
+<p>CAN是控制器局域网络(Controller Area Network, CAN)的简称,是由以研发和生产汽车电子产品著称的德国BOSCH公司开发的,并最终成为国际标准（ISO 11898）,是国际上应用最广泛的现场总线之一.详情请参考<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/CAN%E6%80%BB%E7%BA%BF/297754?fr=aladdin">百科</a></p>
+<h2 id="2-linux-kernel和devicetree的配置">2.linux kernel和devicetree的配置</h2>
+<h3 id="2-1-Linux-kernel配置">2.1 Linux kernel配置</h3>
+<p>在linux kernel中,Xilinx CAN 驱动默认是disable状态,按照下图打开对应选项即可:<br>
+<img src="../../../../images/Xilinx_CAN_Kernel_config.png" alt="avatar"></p>
+<h3 id="2-2-Devicetree配置">2.2 Devicetree配置</h3>
+<p>通过查阅相关文档,Xilinx CAN driver在Devicetree中的配置如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">zynq_can_0: can@e0008000 &#123;</span><br><span class="line">    compatible = <span class="string">&quot;xlnx,zynq-can-1.0&quot;</span>;</span><br><span class="line">    clocks = &lt;&amp;clkc 19&gt;, &lt;&amp;clkc 36&gt;;</span><br><span class="line">    clock-names = <span class="string">&quot;can_clk&quot;</span>, <span class="string">&quot;pclk&quot;</span>;</span><br><span class="line">    reg = &lt;0xe0008000 0x1000&gt;;</span><br><span class="line">    interrupts = &lt;0 28 4&gt;;</span><br><span class="line">    interrupt-parent = &lt;&amp;intc&gt;;</span><br><span class="line">    tx-fifo-depth = &lt;0x40&gt;;</span><br><span class="line">    rx-fifo-depth = &lt;0x40&gt;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="3-canutils和iproute2的编译以及使用">3.canutils和iproute2的编译以及使用</h2>
+<h3 id="3-1-canutils工具的交叉编译">3.1 canutils工具的交叉编译</h3>
+<p>下载源码:<br>
+<a target="_blank" rel="noopener" href="https://public.pengutronix.de/software/libsocketcan/libsocketcan-0.0.11.tar.bz2">libsocketcan-0.0.11.tar.gz</a><br>
+<a target="_blank" rel="noopener" href="https://public.pengutronix.de/software/socket-can/canutils/v4.0/canutils-4.0.6.tar.bz2">canutils-4.0.6.tar.gz</a></p>
+<p>交叉编译libsocketcan:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> libsocketcan-0.0.11</span><br><span class="line">$ ./configure CC=arm-linux-gnueabihf-gcc --host=arm-linux-gnueabihf --prefix=$(<span class="built_in">pwd</span>)/install</span><br><span class="line">$ make -j4</span><br><span class="line">$ make install</span><br></pre></td></tr></table></figure>
+<p>交叉编译canutils:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cd</span> canutils-4.0.6</span><br><span class="line">$ ./configure CC=arm-linux-gnueabihf-gcc --host=arm-linux-gnueabihf --prefix=$(<span class="built_in">pwd</span>)/install libsocketcan_LIBS=-lsocketcan LDFLAGS=<span class="string">&quot;-L/home/Codes/libsocketcan-0.0.11/install/lib/&quot;</span> libsocketcan_CFLAGS=<span class="string">&quot;-I/home/Codeslibsocketcan-0.0.11/install/include/&quot;</span></span><br><span class="line">$ make -j4</span><br><span class="line">$ make install</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-iproute2工具的交叉编译">3.2 iproute2工具的交叉编译</h3>
+<p>下载源码:<br>
+<a target="_blank" rel="noopener" href="https://mirrors.edge.kernel.org/pub/linux/utils/net/iproute2/iproute2-4.9.0.tar.gz">iproute2-4.9.0.tar.gz</a></p>
+<p>首先修改源码根目录下的Makefile:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">将CC那一行改为:</span><br><span class="line">CC := arm-linux-gnueabihf-gcc</span><br></pre></td></tr></table></figure>
+<p>交叉编译:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make -j4</span><br></pre></td></tr></table></figure>
+<p>编译过程可能会出错,但是我们需要用到的ip工具已编译出来,其它工具并不需要,所以忽略错误即可</p>
+<h3 id="3-3测试CAN的功能">3.3测试CAN的功能</h3>
+<p>以下调试过程摘抄自<a target="_blank" rel="noopener" href="https://xilinx-wiki.atlassian.net/wiki/spaces/A/pages/18842496/Linux+CAN+driver">Xilinx Wiki</a>,经过验证,此方法可行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">1. Set bit-timing</span><br><span class="line">Can supports bitrates upto 1Mb/s. Xilinx CAN h/w and driver supports these bit rates</span><br><span class="line">Note: Triple sampling is not supported by Xilinx CAN H/W. </span><br><span class="line">$ ./ip <span class="built_in">link</span> <span class="built_in">set</span> can0 <span class="built_in">type</span> can bitrate 200000</span><br><span class="line">or</span><br><span class="line">$ ./canconfig can0 bitrate 200000</span><br><span class="line">2. Bring up the device</span><br><span class="line">$ ./ip <span class="built_in">link</span> <span class="built_in">set</span> can0 up</span><br><span class="line">or</span><br><span class="line">$ ./canconfig can0 start</span><br><span class="line">3. Bring down the device</span><br><span class="line">$ ./ip <span class="built_in">link</span> <span class="built_in">set</span> can0 down</span><br><span class="line">or</span><br><span class="line">$ ./canconfig can0 stop</span><br><span class="line">4. Transmit and receive packets with standard <span class="built_in">id</span> number</span><br><span class="line">$ ./cansend can0 -i 0x14 &lt;bytes&gt;</span><br><span class="line">$ ./candump can0</span><br><span class="line">5. Transmit and receive packets with extended <span class="built_in">id</span> number (--loop argument here)</span><br><span class="line">$ ./cansend can0 -i 0x333 &lt;bytes&gt;</span><br><span class="line">$ ./candump can0</span><br><span class="line">6. Loopback mode</span><br><span class="line">$ ./canconfig can0 ctrlmode loopback on </span><br><span class="line">7. Checking <span class="built_in">link</span> state (checking bitrate/errors/packets)</span><br><span class="line">$ ./ip -d -s <span class="built_in">link</span> show can0</span><br><span class="line">8. Checking net device state</span><br><span class="line">$ ifconfig can0</span><br><span class="line">9. Getting statistics via proc</span><br><span class="line">$ <span class="built_in">cat</span> /proc/net/can/stats</span><br><span class="line">10. Socket CAN core uses several filter lists to deliver received CAN frames to CAN protocol modules. These</span><br><span class="line">receive lists, their filters and the count of filter matches can be checked <span class="keyword">in</span> the appropriate receive list. All entries contain the</span><br><span class="line">device and a protocol module identifier:</span><br><span class="line">$ <span class="built_in">cat</span> /proc/net/can/rcvlist_all</span><br><span class="line">rcvlist_all - list <span class="keyword">for</span> unfiltered entries (no filter operations)</span><br><span class="line">rcvlist_eff - list <span class="keyword">for</span> single extended frame (EFF) entries</span><br><span class="line">rcvlist_err - list <span class="keyword">for</span> error message frames masks</span><br><span class="line">rcvlist_fil - list <span class="keyword">for</span> mask/value filters</span><br><span class="line">rcvlist_inv - list <span class="keyword">for</span> mask/value filters (inverse semantic)</span><br><span class="line">rcvlist_sff - list <span class="keyword">for</span> single standard frame (SFF) entries</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <div>
+        
+            <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+    </div>
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/assets/weixin_pay.png" alt="Heng 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Heng
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://lh123lh.github.io/2019/03/26/ZYNQ-7000-CAN%E8%B0%83%E8%AF%95%E8%AE%B0%E5%BD%95/" title="ZYNQ 7000 CAN调试记录">https://lh123lh.github.io/2019/03/26/ZYNQ-7000-CAN调试记录/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/ZYNQ/" rel="tag"><i class="fa fa-tag"></i> ZYNQ</a>
+              <a href="/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91/" rel="tag"><i class="fa fa-tag"></i> 嵌入式开发</a>
+              <a href="/tags/Linux/" rel="tag"><i class="fa fa-tag"></i> Linux</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/03/13/ntp%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91/" rel="prev" title="在arm平台移植ntp">
+      <i class="fa fa-chevron-left"></i> 在arm平台移植ntp
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/04/08/ZYNQ%E5%9C%A8%E5%86%85%E6%A0%B8%E5%AF%B9PL%E7%BC%96%E7%A8%8B/" rel="next" title="ZYNQ在内核对PL编程">
+      ZYNQ在内核对PL编程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="lv-container" data-id="city" data-uid="MTAyMC80MzEyNS8xOTY3MQ=="></div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">1.说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-linux-kernel%E5%92%8Cdevicetree%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">2.linux kernel和devicetree的配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-Linux-kernel%E9%85%8D%E7%BD%AE"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 Linux kernel配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Devicetree%E9%85%8D%E7%BD%AE"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Devicetree配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-canutils%E5%92%8Ciproute2%E7%9A%84%E7%BC%96%E8%AF%91%E4%BB%A5%E5%8F%8A%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">3.canutils和iproute2的编译以及使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-canutils%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 canutils工具的交叉编译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-iproute2%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 iproute2工具的交叉编译</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3%E6%B5%8B%E8%AF%95CAN%E7%9A%84%E5%8A%9F%E8%83%BD"><span class="nav-number">3.3.</span> <span class="nav-text">3.3测试CAN的功能</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Heng"
+      src="/assets/Heng.png">
+  <p class="site-author-name" itemprop="name">Heng</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/lh123lh" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;lh123lh" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lh123lh</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">14k</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+  -->
+
+  <div id="days"></div>
+  <script>
+  function show_date_time(){
+      window.setTimeout("show_date_time()", 1000);
+      BirthDay=new Date("03/05/2019 10:00:00");//修改为自己的blog建站时间
+      today=new Date();
+      timeold=(today.getTime()-BirthDay.getTime());
+      sectimeold=timeold/1000
+      secondsold=Math.floor(sectimeold);
+      msPerDay=24*60*60*1000
+      e_daysold=timeold/msPerDay
+      daysold=Math.floor(e_daysold);
+      e_hrsold=(e_daysold-daysold)*24;
+      hrsold=setzero(Math.floor(e_hrsold));
+      e_minsold=(e_hrsold-hrsold)*60;
+      minsold=setzero(Math.floor((e_hrsold-hrsold)*60));
+      seconds=setzero(Math.floor((e_minsold-minsold)*60));
+      document.getElementById('days').innerHTML="本站已安全运行"+daysold+"天"+hrsold+"小时"+minsold+"分"+seconds+"秒";
+  }
+  function setzero(i){
+      if (i<10)
+      {i="0" + i};
+      return i;
+  }
+  show_date_time();
+  </script><script color="0,0,255" opacity="0.5" zIndex="-1" count="99" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+    <div>
+        <script type="text/javascript">document.write(unescape("%3Cspan id='cnzz_stat_icon_1280382676'%3E%3C/span%3E%3Cscript src='https://s4.cnzz.com/z_stat.php%3Fid%3D1280382676%26online%3D1%26show%3Dline' type='text/javascript'%3E%3C/script%3E"));</script>
+    </div>
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="//cdn.jsdelivr.net/gh/theme-next/theme-next-canvas-ribbon@1/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+<script>
+document.querySelectorAll('.pdfobject-container').forEach(element => {
+  let url = element.dataset.target;
+  let pdfOpenParams = {
+    navpanes : 0,
+    toolbar  : 0,
+    statusbar: 0,
+    pagemode : 'thumbs',
+    view     : 'FitH'
+  };
+  let pdfOpenFragment = '#' + Object.entries(pdfOpenParams).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&');
+  let fullURL = `/lib/pdf/web/viewer.html?file=${encodeURIComponent(url)}${pdfOpenFragment}`;
+
+  if (NexT.utils.supportsPDFs()) {
+    element.innerHTML = `<embed class="pdfobject" src="${url + pdfOpenFragment}" type="application/pdf" style="height: ${element.dataset.height};">`;
+  } else {
+    element.innerHTML = `<iframe src="${fullURL}" style="height: ${element.dataset.height};" frameborder="0"></iframe>`;
+  }
+});
+</script>
+
+
+
+
+  
+
+  
+
+<script>
+NexT.utils.loadComments(document.querySelector('#lv-container'), () => {
+  window.livereOptions = {
+    refer: location.pathname.replace(CONFIG.root, '').replace('index.html', '')
+  };
+  (function(d, s) {
+    var j, e = d.getElementsByTagName(s)[0];
+    if (typeof LivereTower === 'function') { return; }
+    j = d.createElement(s);
+    j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+    j.async = true;
+    e.parentNode.insertBefore(j, e);
+  })(document, 'script');
+});
+</script>
+
+</body>
+</html>
+<!-- 页面点击小红心 -->
+<script type="text/javascript" src="/js/love.js"></script>
